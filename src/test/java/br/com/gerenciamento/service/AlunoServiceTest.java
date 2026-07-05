@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.List;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class AlunoServiceTest {
@@ -43,5 +45,42 @@ public class AlunoServiceTest {
         aluno.setMatricula("123456");
         Assert.assertThrows(ConstraintViolationException.class, () -> {
                 this.serviceAluno.save(aluno);});
+    }
+
+    @Test
+    public void findByNomeContainingIgnoreCase() {
+        Aluno aluno = new Aluno();
+        aluno.setId(2L);
+        aluno.setNome("Álvaro Henrique");
+        aluno.setTurno(Turno.NOTURNO);
+        aluno.setCurso(Curso.ADMINISTRACAO);
+        aluno.setStatus(Status.ATIVO);
+        aluno.setMatricula("654321");
+
+        this.serviceAluno.save(aluno);
+
+        List<Aluno> alunos = this.serviceAluno.findByNomeContainingIgnoreCase("álvaro");
+
+        Assert.assertFalse(alunos.isEmpty());
+        Assert.assertTrue(alunos.get(0).getNome().equals("Álvaro Henrique"));
+    }
+
+    @Test
+    public void deleteById() {
+        Aluno aluno = new Aluno();
+        aluno.setId(3L);
+        aluno.setNome("Aluno Deletar");
+        aluno.setTurno(Turno.NOTURNO);
+        aluno.setCurso(Curso.ADMINISTRACAO);
+        aluno.setStatus(Status.ATIVO);
+        aluno.setMatricula("789123");
+
+        this.serviceAluno.save(aluno);
+
+        this.serviceAluno.deleteById(3L);
+
+        Assert.assertThrows(Exception.class, () -> {
+            this.serviceAluno.getById(3L);
+        });
     }
 }
